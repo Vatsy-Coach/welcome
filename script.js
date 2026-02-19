@@ -1,9 +1,12 @@
 // ====================
-// Contact Form Handler with Spam Protection
+// Contact Form Handler with Spam Protection & Web3Forms
 // ====================
 
 const contactForm = document.getElementById('contactForm');
 const formMessage = document.getElementById('formMessage');
+
+// Web3Forms Access Key
+const WEB3FORMS_KEY = '66818d8b-131e-41b4-b763-80a2a7dcbf3b';
 
 // Spam protection: Max 2 submissions per browser session
 const MAX_SUBMISSIONS = 2;
@@ -41,6 +44,7 @@ return;
 
 // Get form data
 const formData = new FormData(contactForm);
+formData.append('access_key', WEB3FORMS_KEY);
 
 // Show loading state
 const submitButton = contactForm.querySelector('.submit-button');
@@ -49,17 +53,15 @@ submitButton.textContent = 'Sending...';
 submitButton.disabled = true;
 
 try {
-// Using Formspree service (free, no backend needed)
-// First time you submit, you'll get an email to confirm
-const response = await fetch('https://formspree.io/f/arnavjainaj17@gmail.com', {
+// Using Web3Forms service (free, unlimited submissions)
+const response = await fetch('https://api.web3forms.com/submit', {
 method: 'POST',
-body: formData,
-headers: {
-'Accept': 'application/json'
-}
+body: formData
 });
 
-if (response.ok) {
+const data = await response.json();
+
+if (data.success) {
 // Increment submission count on successful send
 incrementSubmissionCount();
 
