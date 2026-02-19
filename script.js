@@ -1,15 +1,43 @@
 // ====================
-// Contact Form Handler
+// Contact Form Handler with Spam Protection
 // ====================
 
 const contactForm = document.getElementById('contactForm');
 const formMessage = document.getElementById('formMessage');
 
-// Email will be sent using FormSubmit.co (free service, no backend needed)
-// Replace the form action with your email
+// Spam protection: Max 2 submissions per browser session
+const MAX_SUBMISSIONS = 2;
+const SUBMISSION_KEY = 'contactFormSubmissions';
+
+function checkSpamLimit() {
+const submissions = JSON.parse(sessionStorage.getItem(SUBMISSION_KEY)) || 0;
+
+if (submissions >= MAX_SUBMISSIONS) {
+return false;
+}
+return true;
+}
+
+function incrementSubmissionCount() {
+const submissions = JSON.parse(sessionStorage.getItem(SUBMISSION_KEY)) || 0;
+sessionStorage.setItem(SUBMISSION_KEY, JSON.stringify(submissions + 1));
+}
 
 contactForm.addEventListener('submit', async (e) => {
 e.preventDefault();
+
+// Check spam limit
+if (!checkSpamLimit()) {
+formMessage.textContent = '✗ You have reached the maximum submissions for this session (2). Please try again later.';
+formMessage.classList.add('error');
+formMessage.classList.remove('success');
+
+setTimeout(() => {
+formMessage.textContent = '';
+formMessage.classList.remove('error');
+}, 5000);
+return;
+}
 
 // Get form data
 const formData = new FormData(contactForm);
@@ -32,6 +60,9 @@ headers: {
 });
 
 if (response.ok) {
+// Increment submission count on successful send
+incrementSubmissionCount();
+
 formMessage.textContent = '✓ Message sent successfully! I'll get back to you soon.';
 formMessage.classList.add('success');
 formMessage.classList.remove('error');
