@@ -23,8 +23,74 @@ function incrementSubmissionCount() {
 //     Get a free key at https://web3forms.com — just enter your email.
 const WEB3FORMS_ACCESS_KEY = '66818d8b-131e-41b4-b763-80a2a7dcbf3b';
 
-contactForm.addEventListener('submit', async (e) => {
-  e.preventDefault(); // ← Prevents page reload (was missing before!)
+function showSuccessScreen() {
+  // Replace the form with a success message
+  const formContainer = contactForm.parentElement;
+  const originalHTML = formContainer.innerHTML;
+  
+  formContainer.innerHTML = `
+    <div id="successScreen" style="
+      text-align: center;
+      padding: 60px 40px;
+      background: linear-gradient(135deg, #ffffff 0%, #fdf9f5 100%);
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(139, 115, 85, 0.1);
+      border: 1px solid rgba(139, 115, 85, 0.1);
+      max-width: 600px;
+      margin: 0 auto;
+      animation: fadeInUp 0.6s ease forwards;
+    ">
+      <div style="font-size: 72px; margin-bottom: 20px;">✅</div>
+      <h3 style="
+        font-size: 28px;
+        color: #8b7355;
+        margin-bottom: 15px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+      ">Message Sent!</h3>
+      <p style="
+        color: #666;
+        font-size: 16px;
+        line-height: 1.7;
+        margin-bottom: 35px;
+        max-width: 380px;
+        margin-left: auto;
+        margin-right: auto;
+      ">Thank you for reaching out. I'll get back to you as soon as possible!</p>
+      <button id="goHomeBtn" style="
+        padding: 14px 45px;
+        background: #8b7355;
+        color: white;
+        border: none;
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(139, 115, 85, 0.25);
+        cursor: pointer;
+      ">← Back to Home</button>
+    </div>
+  `;
+
+  // Handle back button click
+  document.getElementById('goHomeBtn').addEventListener('click', () => {
+    formContainer.innerHTML = originalHTML;
+    contactForm.reset();
+    // Re-attach the form listener
+    attachFormListener();
+    // Smooth scroll back to contact section
+    document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+  });
+}
+
+function attachFormListener() {
+  const form = document.getElementById('contactForm');
+  form.addEventListener('submit', handleFormSubmit);
+}
+
+async function handleFormSubmit(e) {
+  e.preventDefault();
 
   // Check spam limit
   if (!checkSpamLimit()) {
@@ -39,13 +105,13 @@ contactForm.addEventListener('submit', async (e) => {
   }
 
   // Show loading state
-  const submitButton = contactForm.querySelector('.submit-button');
+  const submitButton = this.querySelector('.submit-button');
   submitButton.textContent = 'Sending...';
   submitButton.disabled = true;
 
   try {
     // Build the form payload
-    const formData = new FormData(contactForm);
+    const formData = new FormData(this);
     formData.append('access_key', WEB3FORMS_ACCESS_KEY);
 
     // Actually send the email via Web3Forms
@@ -57,12 +123,9 @@ contactForm.addEventListener('submit', async (e) => {
     const result = await response.json();
 
     if (result.success) {
-      // Success — increment count and show success message
+      // Success — increment count and show success screen
       incrementSubmissionCount();
-      formMessage.textContent = '✓ Message sent! I\'ll get back to you shortly.';
-      formMessage.classList.add('success');
-      formMessage.classList.remove('error');
-      contactForm.reset();
+      showSuccessScreen();
     } else {
       throw new Error(result.message || 'Submission failed');
     }
@@ -83,7 +146,10 @@ contactForm.addEventListener('submit', async (e) => {
       formMessage.classList.remove('success', 'error');
     }, 6000);
   }
-});
+}
+
+// Attach form listener on page load
+attachFormListener();
 
 // ====================
 // Smooth Scrolling
