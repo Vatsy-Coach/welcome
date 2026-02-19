@@ -19,15 +19,13 @@ function incrementSubmissionCount() {
   sessionStorage.setItem(SUBMISSION_KEY, JSON.stringify(submissions + 1));
 }
 
-// ⚠️  IMPORTANT: Replace 'YOUR_WEB3FORMS_ACCESS_KEY' below with your real key.
-//     Get a free key at https://web3forms.com — just enter your email.
+// ⚠️  IMPORTANT: Replace with your real Web3Forms key from https://web3forms.com
 const WEB3FORMS_ACCESS_KEY = '66818d8b-131e-41b4-b763-80a2a7dcbf3b';
 
 function showSuccessScreen() {
-  // Replace the form with a success message
   const formContainer = contactForm.parentElement;
   const originalHTML = formContainer.innerHTML;
-  
+
   formContainer.innerHTML = `
     <div id="successScreen" style="
       text-align: center;
@@ -62,31 +60,30 @@ function showSuccessScreen() {
         background: #8b7355;
         color: white;
         border: none;
-        text-decoration: none;
         border-radius: 50px;
         font-weight: 700;
         font-size: 15px;
-        transition: all 0.3s ease;
-        box-shadow: 0 8px 25px rgba(139, 115, 85, 0.25);
         cursor: pointer;
+        box-shadow: 0 8px 25px rgba(139, 115, 85, 0.25);
+        transition: all 0.3s ease;
       ">← Back to Home</button>
     </div>
   `;
 
-  // Handle back button click
   document.getElementById('goHomeBtn').addEventListener('click', () => {
+    // Restore original HTML — this gives back a completely fresh, clean form
     formContainer.innerHTML = originalHTML;
-    contactForm.reset();
-    // Re-attach the form listener
+    // Re-attach the submit listener on the new fresh form element
     attachFormListener();
-    // Smooth scroll back to contact section
     document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
   });
 }
 
 function attachFormListener() {
   const form = document.getElementById('contactForm');
-  form.addEventListener('submit', handleFormSubmit);
+  if (form) {
+    form.addEventListener('submit', handleFormSubmit);
+  }
 }
 
 async function handleFormSubmit(e) {
@@ -94,27 +91,25 @@ async function handleFormSubmit(e) {
 
   // Check spam limit
   if (!checkSpamLimit()) {
-    formMessage.textContent = '✗ You have reached the maximum submissions for this session (2). Please try again later.';
-    formMessage.classList.add('error');
-    formMessage.classList.remove('success');
+    const msg = document.getElementById('formMessage');
+    msg.textContent = '✗ You have reached the maximum submissions for this session (2). Please try again later.';
+    msg.classList.add('error');
+    msg.classList.remove('success');
     setTimeout(() => {
-      formMessage.textContent = '';
-      formMessage.classList.remove('error');
+      msg.textContent = '';
+      msg.classList.remove('error');
     }, 5000);
     return;
   }
 
-  // Show loading state
   const submitButton = this.querySelector('.submit-button');
   submitButton.textContent = 'Sending...';
   submitButton.disabled = true;
 
   try {
-    // Build the form payload
     const formData = new FormData(this);
     formData.append('access_key', WEB3FORMS_ACCESS_KEY);
 
-    // Actually send the email via Web3Forms
     const response = await fetch('https://api.web3forms.com/submit', {
       method: 'POST',
       body: formData
@@ -123,32 +118,37 @@ async function handleFormSubmit(e) {
     const result = await response.json();
 
     if (result.success) {
-      // Success — increment count and show success screen
       incrementSubmissionCount();
       showSuccessScreen();
+      return; // ← Exit here — skips finally, so button is never touched again
     } else {
       throw new Error(result.message || 'Submission failed');
     }
   } catch (err) {
-    // Something went wrong — show error, do NOT increment count
+    // Only reaches here on failure
     console.error('Form submission error:', err);
-    formMessage.textContent = '✗ Something went wrong. Please try again or email me directly.';
-    formMessage.classList.add('error');
-    formMessage.classList.remove('success');
-  } finally {
-    // Always restore the button
+    const msg = document.getElementById('formMessage');
+    if (msg) {
+      msg.textContent = '✗ Something went wrong. Please try again or email me directly.';
+      msg.classList.add('error');
+      msg.classList.remove('success');
+    }
+
+    // Restore button only on failure
     submitButton.textContent = 'Send Message';
     submitButton.disabled = false;
 
-    // Auto-clear the message after 6 seconds
     setTimeout(() => {
-      formMessage.textContent = '';
-      formMessage.classList.remove('success', 'error');
+      const msg = document.getElementById('formMessage');
+      if (msg) {
+        msg.textContent = '';
+        msg.classList.remove('success', 'error');
+      }
     }, 6000);
   }
 }
 
-// Attach form listener on page load
+// Attach on initial page load
 attachFormListener();
 
 // ====================
