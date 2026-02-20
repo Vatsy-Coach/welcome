@@ -830,11 +830,13 @@ padding: 20px 0;
 
 .hero-text h1 {
 font-size: 32px;
+padding-left: 15px;
 }
 
 .hero-text p {
 font-size: 14px;
 margin-bottom: 20px;
+padding-left: 15px;
 }
 
 .nav-menu {
@@ -893,11 +895,13 @@ padding: 50px 0;
 @media (max-width: 480px) {
 .hero-text h1 {
 font-size: 24px;
+padding-left: 15px;
 }
 
 .hero-text p {
 font-size: 13px;
 margin-bottom: 15px;
+padding-left: 15px;
 }
 
 .hero {
