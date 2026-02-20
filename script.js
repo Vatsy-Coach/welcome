@@ -76,7 +76,6 @@ async function handleFormSubmit(e) {
 
   try {
     const formData = new FormData(this);
-    formData.append('access_key', WEB3FORMS_ACCESS_KEY);
 
     const response = await fetch('https://api.web3forms.com/submit', {
       method: 'POST',
@@ -95,7 +94,7 @@ async function handleFormSubmit(e) {
     console.error('Form submission error:', err);
     const msg = document.getElementById('formMessage');
     if (msg) {
-      msg.textContent = '✗ Something went wrong. Please try again or email me directly.';
+      msg.textContent = '✗ ' + err.message;
       msg.classList.add('error');
       msg.classList.remove('success');
     }
