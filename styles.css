@@ -586,7 +586,7 @@ color: var(--accent-light);
 }
 
 .price::after {
-content: '/month';
+content: '';
 font-size: 16px;
 color: var(--text-light);
 font-weight: 500;
