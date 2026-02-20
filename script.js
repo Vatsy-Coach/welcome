@@ -24,7 +24,6 @@ const WEB3FORMS_ACCESS_KEY = '66818d8b-131e-41b4-b763-80a2a7dcbf3b';
 
 function showSuccessScreen() {
   const formContainer = contactForm.parentElement;
-  const originalHTML = formContainer.innerHTML;
 
   formContainer.innerHTML = `
     <div id="successScreen" style="
@@ -71,11 +70,7 @@ function showSuccessScreen() {
   `;
 
   document.getElementById('goHomeBtn').addEventListener('click', () => {
-    // Restore original HTML — this gives back a completely fresh, clean form
-    formContainer.innerHTML = originalHTML;
-    // Re-attach the submit listener on the new fresh form element
-    attachFormListener();
-    document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+    location.reload();
   });
 }
 
@@ -120,12 +115,11 @@ async function handleFormSubmit(e) {
     if (result.success) {
       incrementSubmissionCount();
       showSuccessScreen();
-      return; // ← Exit here — skips finally, so button is never touched again
+      return;
     } else {
       throw new Error(result.message || 'Submission failed');
     }
   } catch (err) {
-    // Only reaches here on failure
     console.error('Form submission error:', err);
     const msg = document.getElementById('formMessage');
     if (msg) {
@@ -134,7 +128,6 @@ async function handleFormSubmit(e) {
       msg.classList.remove('success');
     }
 
-    // Restore button only on failure
     submitButton.textContent = 'Send Message';
     submitButton.disabled = false;
 
@@ -241,35 +234,5 @@ headings.forEach(heading => {
   heading.style.opacity = '0';
   headingObserver.observe(heading);
 });
-
-// ====================
-// CSS Animations (injected)
-// ====================
-
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(40px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes slideInLeft {
-    from { opacity: 0; transform: translateX(-40px); }
-    to   { opacity: 1; transform: translateX(0); }
-  }
-  @keyframes slideInRight {
-    from { opacity: 0; transform: translateX(40px); }
-    to   { opacity: 1; transform: translateX(0); }
-  }
-  @keyframes scaleIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to   { opacity: 1; transform: scale(1); }
-  }
-  .nav-menu a.active {
-    color: var(--accent);
-    border-bottom: 3px solid var(--accent);
-    padding-bottom: 5px;
-  }
-`;
-document.head.appendChild(style);
 
 console.log('✓ Career Coach website loaded successfully!');

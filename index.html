@@ -144,9 +144,8 @@
 <h2>Get In Touch</h2>
 <p class="contact-subtitle">Have questions? Let's chat about your career goals!</p>
 
-<form class="contact-form" id="contactForm" action="https://api.web3forms.com/submit" method="POST">
-<input type="hidden" name="access_key" value="66818d8b-131e-41b4-b763-80a2a7dcbf3b">
-
+<!-- Removed: action attribute (JS handles submit via fetch) and hidden access_key (JS appends it) -->
+<form class="contact-form" id="contactForm">
 <div class="form-group">
 <label for="name">Your Name</label>
 <input type="text" id="name" name="name" required placeholder="John Doe">
