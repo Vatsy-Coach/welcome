@@ -84,17 +84,22 @@ async function handleFormSubmit(e) {
 
     const result = await response.json();
 
+    console.log('API Response:', result);
+
     if (result.success) {
       showSuccessScreen();
       return;
     } else {
-      throw new Error(result.message || 'Submission failed');
+      const errorMsg = result.message || 'Submission failed. Check the console for details.';
+      throw new Error(errorMsg);
     }
   } catch (err) {
     console.error('Form submission error:', err);
+    console.error('Error details:', err.message);
+    
     const msg = document.getElementById('formMessage');
     if (msg) {
-      msg.textContent = '✗ ' + err.message;
+      msg.textContent = '✗ ' + (err.message || 'Something went wrong. Check browser console for details.');
       msg.classList.add('error');
       msg.classList.remove('success');
     }
