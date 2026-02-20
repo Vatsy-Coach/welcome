@@ -1,23 +1,9 @@
 // ====================
-// Contact Form Handler with Spam Protection
+// Contact Form Handler
 // ====================
 
 const contactForm = document.getElementById('contactForm');
 const formMessage = document.getElementById('formMessage');
-
-// Spam protection: Max 2 submissions per browser session
-const MAX_SUBMISSIONS = 2;
-const SUBMISSION_KEY = 'contactFormSubmissions';
-
-function checkSpamLimit() {
-  const submissions = JSON.parse(sessionStorage.getItem(SUBMISSION_KEY)) || 0;
-  return submissions < MAX_SUBMISSIONS;
-}
-
-function incrementSubmissionCount() {
-  const submissions = JSON.parse(sessionStorage.getItem(SUBMISSION_KEY)) || 0;
-  sessionStorage.setItem(SUBMISSION_KEY, JSON.stringify(submissions + 1));
-}
 
 // ⚠️  IMPORTANT: Replace with your real Web3Forms key from https://web3forms.com
 const WEB3FORMS_ACCESS_KEY = '66818d8b-131e-41b4-b763-80a2a7dcbf3b';
@@ -84,19 +70,6 @@ function attachFormListener() {
 async function handleFormSubmit(e) {
   e.preventDefault();
 
-  // Check spam limit
-  if (!checkSpamLimit()) {
-    const msg = document.getElementById('formMessage');
-    msg.textContent = '✗ You have reached the maximum submissions for this session (2). Please try again later.';
-    msg.classList.add('error');
-    msg.classList.remove('success');
-    setTimeout(() => {
-      msg.textContent = '';
-      msg.classList.remove('error');
-    }, 5000);
-    return;
-  }
-
   const submitButton = this.querySelector('.submit-button');
   submitButton.textContent = 'Sending...';
   submitButton.disabled = true;
@@ -113,7 +86,6 @@ async function handleFormSubmit(e) {
     const result = await response.json();
 
     if (result.success) {
-      incrementSubmissionCount();
       showSuccessScreen();
       return;
     } else {
