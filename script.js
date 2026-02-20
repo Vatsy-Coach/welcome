@@ -211,4 +211,4 @@ headings.forEach(heading => {
   headingObserver.observe(heading);
 });
 
-console.log('✓ Career Coach website loaded successfully!');
+console.log('✓ Vatsy Coach website loaded successfully!');
